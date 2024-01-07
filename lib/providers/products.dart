@@ -50,6 +50,10 @@ class Products with ChangeNotifier {
     return _items.firstWhere((product) => product.id == id);
   }
 
+  int get productsCount {
+    return _items.length;
+  }
+
   // void showFavorites() {
   //   _showFavorites = true;
   //   notifyListeners();
