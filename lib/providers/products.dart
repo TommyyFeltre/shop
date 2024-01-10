@@ -72,5 +72,11 @@ class Products with ChangeNotifier {
   void updateProduct(String id, Product product) {
     final index = _items.indexWhere((item) => item.id == id);
     _items[index] = product;
+    notifyListeners();
+  }
+
+  void removeProduct(String id) {
+    _items.removeWhere((item) => item.id == id);
+    notifyListeners();
   }
 }

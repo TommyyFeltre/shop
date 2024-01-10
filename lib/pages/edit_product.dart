@@ -80,7 +80,7 @@ class _EditProductPageState extends State<EditProductPage> {
     }
     _form.currentState!.save();
     if(_editedProduct.id.isNotEmpty) {
-      Provider.of<Products>(context).updateProduct(_editedProduct.id, _editedProduct);
+      Provider.of<Products>(context, listen: false).updateProduct(_editedProduct.id, _editedProduct);
     } else {
       Provider.of<Products>(context, listen: false).addProduct(_editedProduct);
     }
