@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:shop/pages/edit_product.dart';
 import 'package:shop/providers/products.dart';
 import 'package:shop/widgets/app_drawer.dart';
 import 'package:shop/widgets/user_product_item.dart';
@@ -17,6 +18,7 @@ class UserProductPage extends StatelessWidget {
         actions: [
           IconButton(
             onPressed: () {
+              Navigator.of(context).pushNamed(EditProductPage.routeName);
             },
             icon: const Icon(Icons.add)
           )
@@ -30,7 +32,7 @@ class UserProductPage extends StatelessWidget {
           itemBuilder: (context, index) => 
             Column(
               children: [
-                UserProductItem(productsPrv.items[index].title, productsPrv.items[index].imageUrl),
+                UserProductItem(productsPrv.items[index].id, productsPrv.items[index].title, productsPrv.items[index].imageUrl),
                 const Divider(color: Colors.grey, thickness: 0.5,)
               ],
             )
