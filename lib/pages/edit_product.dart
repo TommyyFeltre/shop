@@ -84,7 +84,7 @@ class _EditProductPageState extends State<EditProductPage> {
       _isLoading = true;
     });
     if(_editedProduct.id.isNotEmpty) {
-      Provider.of<Products>(currentContext, listen: false).updateProduct(_editedProduct.id, _editedProduct);
+      await Provider.of<Products>(currentContext, listen: false).updateProduct(_editedProduct.id, _editedProduct);
       Navigator.of(currentContext).pop();
       setState(() {
         _isLoading = false;
@@ -109,17 +109,13 @@ class _EditProductPageState extends State<EditProductPage> {
             ],
           )
         );
-        Navigator.of(currentContext).pop();
-      } finally {
-        setState(() {
-          _isLoading = false;
-        });
-      }
-      
         
-          
+      }  
     }
-    
+    setState(() {
+      _isLoading = false;
+    });
+    Navigator.of(currentContext).pop();
   }
 
   @override
