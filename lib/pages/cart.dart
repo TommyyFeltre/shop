@@ -11,6 +11,7 @@ class CartPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final cartProvider = Provider.of<Cart>(context);
+    final scaffoldMessenger = ScaffoldMessenger.of(context);
     return Scaffold(
       appBar: AppBar(
         title: const Text('Your Cart'),
@@ -34,13 +35,7 @@ class CartPage extends StatelessWidget {
                     labelStyle: const TextStyle(color: Colors.white),
                     backgroundColor: Theme.of(context).primaryColor,
                   ),
-                  TextButton(
-                    onPressed: () {
-                      Provider.of<Orders>(context, listen: false).addOrder(cartProvider.items.values.toList(), cartProvider.totalAmount);
-                      cartProvider.clear();
-                    },
-                    child: const Text('ORDER NOW')
-                  )
+                  OrderButton(cartProvider: cartProvider, scaffoldMessenger: scaffoldMessenger)
                 ],
               ),
             ),
@@ -60,6 +55,56 @@ class CartPage extends StatelessWidget {
           )
         ]
       ),
+    );
+  }
+}
+
+class OrderButton extends StatefulWidget {
+  const OrderButton({
+    super.key,
+    required this.cartProvider,
+    required this.scaffoldMessenger,
+  });
+
+  final Cart cartProvider;
+  final ScaffoldMessengerState scaffoldMessenger;
+
+  @override
+  State<OrderButton> createState() => _OrderButtonState();
+}
+
+class _OrderButtonState extends State<OrderButton> {
+  bool _isLoading = false;
+
+  @override
+  Widget build(BuildContext context) {
+    return TextButton(
+      onPressed: (widget.cartProvider.totalAmount <= 0 || _isLoading) 
+      ? null 
+      : () async {
+        setState(() {
+          _isLoading = true;
+        });
+        await Provider.of<Orders>(context, listen: false)
+          .addOrder(widget.cartProvider.items.values.toList(), widget.cartProvider.totalAmount)
+          .catchError((err) {
+            widget.scaffoldMessenger.showSnackBar(
+              const SnackBar(
+                content: Text(
+                  'Could not complete a order',
+                  textAlign: TextAlign.center,
+                )
+              )
+            );
+          });
+          setState(() {
+              _isLoading = false;
+            });
+        widget.cartProvider.clear();
+      },
+      child: _isLoading
+      ? const CircularProgressIndicator()
+      : const Text('ORDER NOW')
     );
   }
 }

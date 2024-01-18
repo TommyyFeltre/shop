@@ -1,4 +1,8 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
+import 'package:shop/models/http_exception.dart';
 
 class Product with ChangeNotifier {
   final String id;
@@ -17,8 +21,18 @@ class Product with ChangeNotifier {
     this.isFavorite = false
   });
 
-  void toggleFavoriteStatus() {
+  Future<void> toggleFavoriteStatus() async {
+    final oldStatus = isFavorite;
     isFavorite = !isFavorite;
     notifyListeners();
+    final url = Uri.https('shop-app-flutter-6f48e-default-rtdb.europe-west1.firebasedatabase.app', '/products/$id.json');
+    final response = await http.patch(url, body: json.encode({
+      'isFavorite': isFavorite,
+      }));
+    if(response.statusCode >= 400) {
+      isFavorite = oldStatus;
+      notifyListeners();
+      throw HttpException('Could not add to favorite.');
+    }
   }
 }
