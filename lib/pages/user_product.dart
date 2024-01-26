@@ -10,12 +10,13 @@ class UserProductPage extends StatelessWidget {
   const UserProductPage({super.key});
 
   Future<void> _refreshProducts(BuildContext context) async {
-    await Provider.of<Products>(context, listen: false).getProducts();
+    await Provider.of<Products>(context, listen: false).getProducts(true);
   }
 
   @override
   Widget build(BuildContext context) {
-    final productsPrv = Provider.of<Products>(context);
+    //this provider will create an infine loop
+    // final productsPrv = Provider.of<Products>(context);
     return Scaffold(
       appBar: AppBar(
         title: const Text('Your Products'),
@@ -29,20 +30,29 @@ class UserProductPage extends StatelessWidget {
         ],
       ),
       drawer: const AppDrawer(),
-      body: RefreshIndicator(
-        onRefresh: () => _refreshProducts(context),
-        child: Padding(
-          padding: const EdgeInsets.all(8),
-          child: ListView.builder(
-            itemCount: productsPrv.productsCount,
-            itemBuilder: (context, index) => 
-              Column(
-                children: [
-                  UserProductItem(productsPrv.items[index].id, productsPrv.items[index].title, productsPrv.items[index].imageUrl),
-                  const Divider(color: Colors.grey, thickness: 0.5,)
-                ],
-              )
-          ),
+      body: FutureBuilder(
+        future: _refreshProducts(context),
+        builder: (context, snapshot) => snapshot.connectionState == ConnectionState.waiting 
+        ? const Center(
+          child: CircularProgressIndicator(),
+        )
+        : RefreshIndicator(
+          onRefresh: () => _refreshProducts(context),
+          child: Consumer<Products>(
+            builder: (context, products, child) => Padding(
+              padding: const EdgeInsets.all(8),
+              child: ListView.builder(
+                itemCount: products.productsCount,
+                itemBuilder: (context, index) => 
+                  Column(
+                    children: [
+                      UserProductItem(products.items[index].id, products.items[index].title, products.items[index].imageUrl),
+                      const Divider(color: Colors.grey, thickness: 0.5,)
+                    ],
+                  )
+              ),
+            ),
+          )
         ),
       ),
     );

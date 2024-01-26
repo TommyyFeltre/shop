@@ -13,42 +13,44 @@ class OrdersPage extends StatefulWidget {
 }
 
 class _OrdersPageState extends State<OrdersPage> {
-bool _isLoading = true;
+  late Future _ordersFuture;
+
+  Future _getOrdersFuture() {
+    return Provider.of<Orders>(context, listen: false).getOrders();
+  }
 
   @override
   void initState() {
-    // _isLoading = true;
-    // Provider.of<Orders>(context, listen: false)
-    //   .getOrders()
-    //   .then((_) {
-    //     setState(() {
-    //       _isLoading = false;
-    //     });
-    //   });
+    _ordersFuture = _getOrdersFuture();
     super.initState();
   }
 
   @override
   Widget build(BuildContext context) {
-    final ordersProvider = Provider.of<Orders>(context);
+    // final ordersProvider = Provider.of<Orders>(context);
     return Scaffold(
       appBar: AppBar(
         title: const Text('Your Orders'),
       ),
       drawer: const AppDrawer(),
       body: FutureBuilder(
-        future: Provider.of<Orders>(context, listen: false).getOrders(),
+        future: _ordersFuture,
         builder: (ctx, snapshot) {
-          
+          if(snapshot.connectionState == ConnectionState.waiting) {
+            return const Center(child: CircularProgressIndicator(),);
+          }
+          if(snapshot.error != null) {
+            return const Center(child: Text('An error occured'),);
+          } else {
+            return Consumer<Orders>(
+              builder: (ctx, ordersProvider, child) => ListView.builder(
+                itemCount: ordersProvider.ordersCount,
+                itemBuilder: (ctx, index) => OrderItem(ordersProvider.orders[index])
+              )
+            );
+          }
         },
       )
-      
-      _isLoading 
-      ? const Center(child: CircularProgressIndicator(),)
-      : ListView.builder(
-        itemCount: ordersProvider.ordersCount,
-        itemBuilder: (context, index) => OrderItem(ordersProvider.orders[index])
-      ),
     );
   }
 }

@@ -21,6 +21,10 @@ class OrderItem {
 
 
 class Orders with ChangeNotifier {
+  Orders(this.authToken, this._orders);
+
+  final String authToken;
+
   List<OrderItem> _orders = [];
 
   List<OrderItem> get orders {
@@ -32,7 +36,7 @@ class Orders with ChangeNotifier {
   }
 
   Future<void> getOrders() async {
-    final url = Uri.https('shop-app-flutter-6f48e-default-rtdb.europe-west1.firebasedatabase.app', '/orders.json');
+    final url = Uri.parse('https://shop-app-flutter-6f48e-default-rtdb.europe-west1.firebasedatabase.app/orders.json?auth=$authToken');
     final response = await http.get(url)
       .catchError((err) {
         throw HttpException(err.toString());
@@ -64,7 +68,7 @@ class Orders with ChangeNotifier {
   }
 
   Future<void> addOrder(List<CartItem> cartProducts, double total) async {
-   final url = Uri.https('shop-app-flutter-6f48e-default-rtdb.europe-west1.firebasedatabase.app', '/orders.json');
+   final url = Uri.parse('https://shop-app-flutter-6f48e-default-rtdb.europe-west1.firebasedatabase.app/orders.json?auth=$authToken');
     final response = await http.post(url, body: json.encode({
       'amount': total,
       'dateTime': DateTime.now().toIso8601String(),
